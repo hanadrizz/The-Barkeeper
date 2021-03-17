@@ -1,5 +1,8 @@
 The-Barkeeper
 
+![MIT Lisence](https://img.shields.io/github/license/hanadrizz/The-Barkeeper)
+![Python Version](https://img.shields.io/badge/python-v3.9-blue)
+
 Fun exercise in making a bot. Personalized for my own server at: https://discord.gg/XGRzEhXAug
 
 # Prefix
