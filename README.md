@@ -2,6 +2,7 @@
 
 ![MIT Lisence](https://img.shields.io/github/license/hanadrizz/The-Barkeeper)
 ![Python Version](https://img.shields.io/badge/python-v3.9-blue)
+![Discord](https://img.shields.io/discord/752157598232477786)
 
 Fun exercise in making a bot. Personalized for my own server at: https://discord.gg/XGRzEhXAug
 
