@@ -1,15 +1,18 @@
+from configparser import Error
 import apraw
 import os, random
 import discord
 from discord import file
 from discord.enums import _is_descriptor
-from discord.ext.commands.errors import BadInviteArgument
+import discord.ext.commands.errors
 import dotenv
 import asyncio
 from discord.ext import commands
-import wikipedia
+from mediawiki import MediaWiki
 import textwrap
 import time
+import datetime
+from PIL import Image
 
 dotenv.load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
@@ -21,13 +24,11 @@ useragent = os.getenv('user_agent')
 user_name = os.getenv("username")
 pass_word = os.getenv('password')
 
-#ya aint getting my detaisl bruh
+
 reddit = apraw.Reddit(client_id = "", client_secret = "", user_agent=useragent, username = "", password="")
 memefolder = os.getenv("memefolder")
 
-# Easy to use list, lol
 bannedsubs = ["poo", "kropotkistan"]
-
 
 # USERS AND CHANNELS
 
@@ -48,7 +49,15 @@ bot = commands.Bot(command_prefix="^", intents=Intents)
 
 # MODERATOR COMMANDS
 
-# Sends a message as The Barkeeper
+processed = []
+
+@bot.command(pass_context=True)
+@commands.has_role(modrole)
+async def avgredditlookup(ctx):
+    results = sum(processed) / len(processed)
+    await ctx.send(f"The average time to look up reddit posts is **{results}ms**")
+    
+
 @bot.command(pass_context=True)
 @commands.has_role(modrole)
 async def sendmessage(ctx, channel: int, *, arg):
@@ -58,7 +67,6 @@ async def sendmessage(ctx, channel: int, *, arg):
     print(arg)
     await cha.send(arg)
 
-# Bans user
 @bot.command(pass_context=True)
 @commands.has_role(modrole)
 async def ban(ctx, user: discord.Member, *reason):
@@ -79,8 +87,8 @@ async def ban(ctx, user: discord.Member, *reason):
                 await user.send(banmessage)
                 await ctx.guild.ban(user, reason=reason)
                 await ctx.channel.send(f"Banned {user}")
+                print(f"{user} banned")
 
-# Unbans user
 @bot.command(pass_context=True)
 @commands.has_role(modrole)
 async def pardon(ctx, id: int):
@@ -91,14 +99,30 @@ async def pardon(ctx, id: int):
 
 # USER COMMANDS    
 
-# Grabs the summary of any wikipedia page sent
+@bot.command()
+async def license(ctx):
+    with open("LICENSE", "r") as license:
+        notice = license.read()
+        await ctx.send(notice)
+
+
+
+@bot.command()
+async def ping(ctx):
+    await ctx.send(f"Pong! **{bot.latency}ms**")
+    print(f"{ctx.message.author.name} pinged")
+
+wikipage = MediaWiki()
 @bot.command()
 async def wiki(ctx, *, page):
+    print(f"{ctx.message.author.name} requested {page}")
     try:
-        summary = wikipedia.summary(page,  auto_suggest=False)
+        site = wikipage.page(page, auto_suggest=False)
+        summary = wikipage.summary(page, auto_suggest=False)
         summary_list = textwrap.wrap(summary, 2000, break_long_words=False)
         for i in summary_list:
             await ctx.channel.send(i)
+        await ctx.channel.send(f"<{site.url}>")
     except Exception as inst:
         output = "Error raised."
         await ctx.send(f"{output}\n{inst}")
@@ -119,34 +143,28 @@ async def wiki(ctx, *, page):
 #         area=ctx.message.channel
 #         await ctx.send(file=discord.File(memelocation))
 
-# Posts a random image or GIF in chat, with any subreddit as a parameter. 18+ is banned
 @bot.command()
 async def redditsearch(ctx, sub):
-    start_time = time.time()
-    listing = []
-    subreddit = await reddit.subreddit(sub)
-    print(subreddit.subreddit_type)
     try:
+        print(f"{ctx.message.author.name} searched for an image in {sub}")
+        start_time = time.time()
+        if sub == "traa":
+            sub = "traaaaaaannnnnnnnnns"
+        listing = []
+        subreddit = await reddit.subreddit(sub)
         if sub.lower() in bannedsubs:
             await ctx.send("Banned subreddit.")
             return
+        elif subreddit.over18 == True:
+            await ctx.send("No NSFW subreddits.")
+            return
         else:
-            if subreddit.over18 == True:
-                await ctx.send("No NSFW subreddits.")
-                return
-            else:
-                async for submission in subreddit.hot(limit=100):
-                    if submission.spoiler == True:
-                        pass
-                    else:
-                        if submission.over_18 == True:
-                            pass
-                        else:
-                            if submission.url.endswith("jpg") or submission.url.endswith("jpeg") or submission.url.endswith("png") or submission.url.endswith("gifv"):
-                                listing.append(submission)
-                            else:
-                                pass
-            
+            async for submission in subreddit.hot(limit=100):
+                if submission.url.endswith(("jpg", "jpeg", "png", "gifv")) and not submission.spoiler and not submission.over_18:
+                    listing.append(submission)
+                else:
+                    pass
+        
             random.shuffle(listing)
             post = listing[0]
             if submission.link_flair_text == None:
@@ -154,40 +172,49 @@ async def redditsearch(ctx, sub):
             else:
                 await ctx.send(f"[{submission.link_flair_text}] \n{post.title}\n{post.url}")
             end_time = time.time()
-            await ctx.send(f"---- Took %s seconds to lookup ----" % (end_time - start_time))
+            endresult = end_time - start_time
+            await ctx.send(f"---- Took %s seconds to lookup ----" % (endresult))
+            processed.append(endresult)
     except AttributeError:
-        await ctx.send("Subreddit is most likely banned or restricted.")
+        await ctx.send(f"Fetching image failed. This is probably due to `{sub}` not existing or being restricted.")
+    except IndexError:
+        await ctx.send(f"Fetching image failed. This is probably due to `{sub}` not being a image heavy subreddit.")
+    except:
+        await ctx.send(f"Fetching image failed. This is most likely due to using non-standard search term. Correct usage is ``^redditsearch [subreddit name]``. Without the r/")
 
 @bot.command()
 async def avatar(ctx, *,  avamember : discord.Member=None):
     userAvatarUrl = avamember.avatar_url
     await ctx.send(userAvatarUrl)
+    print(f"{ctx.message.author.name} looked up {avamember}'s avatar.")
     
-    #dont know about you but that crewman lookin sus
 @bot.command()
 async def sus(ctx):
     await ctx.send("sus")
-    
-    # Just as a "I'm ready"
+    print(f"{ctx.message.author.name} sus")
+
+@bot.command()
+async def jamaal(ctx):
+    await ctx.send("man\nhttps://cdn.discordapp.com/attachments/821123717223415809/821642340359733258/f4xz3iryogm61.jpg")
+    print(f"{ctx.message.author.name} jamaal")
+
 @bot.event
 async def on_ready():
     print(f'Bot has connected to Discord!')
     
-    #lmaoooo
 @bot.command()
 async def sex(ctx):
     await ctx.send("thats what i have with your mom lmao 🔥🔥🔥🔥")
+    print(f"{ctx.message.author.name} sex")
 
-# Welcome message and gives member role
 @bot.event
 async def on_member_join(member):
-    print(member)
     channel = bot.get_channel(general)
     await channel.send(f"Welcome {member.mention} to The Bar! You can get roles by pinging Roleypoly! Be sure to read the rules over at <#755155329502675066> aswell! Have a nice day!")
     role = discord.utils.get(member.guild.roles, id=752163420962422795)
     await member.add_roles(role)
+    print(f"{member} joined.")
 
-# Logs deleted messages to logging channel
 @bot.event
 async def on_message_delete(message):
     channel = bot.get_channel(logs)
@@ -200,6 +227,7 @@ async def on_message_delete(message):
     deletedmessage.add_field(name="Author:", value=author, inline=False)
     deletedmessage.add_field(name="Contents:", value=content, inline=False)
     await channel.send(embed=deletedmessage)
+    print(f"{message.author.name} deleted a message")
 
 # ERROR HANDLING
 
