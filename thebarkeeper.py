@@ -59,21 +59,21 @@ bot = commands.Bot(command_prefix="^", intents=Intents)
 
 processed = []
 
-@bot.command(pass_context=True)
+@bot.command()
 @commands.has_role(modrole)
 async def avgredditlookup(ctx):
     results = sum(processed) / len(processed)
     await ctx.send(f"The average time to look up reddit posts is **{results} seconds**")
     
 
-@bot.command(pass_context=True)
+@bot.command()
 @commands.has_role(ownerrole)
 async def sendmessage(ctx, channel: int, *, arg):
     cha = bot.get_channel(channel)
     print(f"User {ctx.message.author} sent {arg}")
     await cha.send(arg)
 
-@bot.command(pass_context=True)
+@bot.command()
 @commands.has_role(modrole)
 async def ban(ctx, user: discord.Member, *reason):
     if user == None or user == ctx.message.author:
@@ -95,21 +95,19 @@ async def ban(ctx, user: discord.Member, *reason):
                 await ctx.channel.send(f"Banned {user}")
                 print(f"{user} banned")
 
-@bot.command(pass_context=True)
+@bot.command()
 @commands.has_role(modrole)
 async def pardon(ctx, id: int):
     user = await bot.fetch_user(id)
     await ctx.guild.unban(user)
     await ctx.send(f"User <@!{id}> has been pardoned.")
 
-@bot.command(pass_context=True)
+@bot.command()
 @commands.has_role(modrole)
 async def modvote(ctx):
     await ctx.message.add_reaction("👍")
     await ctx.message.add_reaction("👎")
     await ctx.message.add_reaction("👊")
-
-    
 
 # USER COMMANDS    
 
