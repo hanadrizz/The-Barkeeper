@@ -12,7 +12,6 @@ from mediawiki import MediaWiki
 import textwrap
 import time
 import datetime
-from PIL import Image
 
 dotenv.load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
