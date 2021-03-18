@@ -13,18 +13,7 @@ import textwrap
 import time
 import datetime
 
-dotenv.load_dotenv()
-token = os.getenv('DISCORD_TOKEN')
-guild = os.getenv("DISCORD_GUILD")
-
-clientid = os.getenv("client_id")
-clientsecret = os.getenv("client_secret")
-useragent = os.getenv('user_agent')
-user_name = os.getenv("username")
-pass_word = os.getenv('password')
-
-
-reddit = apraw.Reddit(client_id = "", client_secret = "", user_agent=useragent, username = "", password="")
+reddit = apraw.Reddit(client_id = clientid, client_secret = clientsecret, user_agent=useragent, username = user_name, password=pass_word)
 memefolder = os.getenv("memefolder")
 
 bannedsubs = ["poo", "kropotkistan", "femboy", "trans", "feemagers"]
@@ -108,6 +97,8 @@ async def modvote(ctx):
     await ctx.message.add_reaction("👍")
     await ctx.message.add_reaction("👎")
     await ctx.message.add_reaction("👊")
+
+    
 
 # USER COMMANDS    
 
