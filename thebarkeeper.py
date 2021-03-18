@@ -5,6 +5,7 @@ import discord
 from discord import file
 from discord.enums import _is_descriptor
 import discord.ext.commands.errors
+from discord.message import Attachment
 import dotenv
 import asyncio
 from discord.ext import commands
@@ -12,8 +13,31 @@ from mediawiki import MediaWiki
 import textwrap
 import time
 import datetime
+import configparser
 
-reddit = apraw.Reddit(client_id = clientid, client_secret = clientsecret, user_agent=useragent, username = user_name, password=pass_word)
+imagefolder = "images\\"
+
+config = configparser.ConfigParser()
+config.read('db.ini')
+
+clientid = config['reddit']['client_id']
+clientsecret = config['reddit']['client_secret']
+useragent = config['reddit']['user_agent']
+username = config['reddit']['username']
+password = config['reddit']['password']
+
+print('Configuration:')
+
+print(f'ID: {clientid}')
+print(f'Client Secret: {clientsecret}')
+print(f'Useragent: {useragent}')
+print(f'Database: {username}')
+
+dotenv.load_dotenv()
+token = os.getenv('DISCORD_TOKEN')
+guild = os.getenv("DISCORD_GUILD")
+
+reddit = apraw.Reddit(client_id = clientid, client_secret = clientsecret, user_agent=useragent, username = username, password=password)
 memefolder = os.getenv("memefolder")
 
 bannedsubs = ["poo", "kropotkistan", "femboy", "trans", "feemagers"]
@@ -101,6 +125,16 @@ async def modvote(ctx):
     
 
 # USER COMMANDS    
+
+@bot.command()
+async def complementarybread(ctx):
+    print(type(ctx))
+    print(type(ctx.message.author))
+    user = ctx.message.author
+    image = imagefolder + "complementarybread.png"
+    await user.send("Hey!", file=discord.File(image))
+    await ctx.send("Psst... come with me down this alley!")
+
 
 @bot.command()
 async def license(ctx):
@@ -256,9 +290,6 @@ async def on_reaction_add(reaction, user):
                         pin.set_image(url=img)
                     board = bot.get_channel(pinboard)
                     await board.send(f"Message pinned from <#{ctx.id}>", embed=pin)
-                    
-                    
-
 
 @bot.event
 async def on_ready():
@@ -294,4 +325,6 @@ async def redditsearch_error(ctx, inst):
     await ctx.send(f"Exception raised. \n\n{inst}")
 
 bot.run(token)
+
+
 
