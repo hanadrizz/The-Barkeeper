@@ -14,8 +14,12 @@ import textwrap
 import time
 import datetime
 import configparser
+import pybooru
+
+booruclient = pybooru.Danbooru("safebooru")
 
 imagefolder = "images\\"
+pximg = "i.pximg.net"
 
 config = configparser.ConfigParser()
 config.read('db.ini')
@@ -41,6 +45,8 @@ reddit = apraw.Reddit(client_id = clientid, client_secret = clientsecret, user_a
 memefolder = os.getenv("memefolder")
 
 bannedsubs = ["poo", "kropotkistan", "femboy", "trans", "feemagers"]
+bannedtags = ["panties", "pantsu", "pantyshot", "bikini", "swimsuit", "feet", "toes", "ass", "povfeet", "bikini_top", "licking", "saliva", "micro_bikini", "cameltoe"]
+
 
 # USERS AND CHANNELS
 
@@ -63,6 +69,7 @@ Intents = discord.Intents.default()
 Intents.members = True
 Intents.messages = True
 Intents.reactions = True
+Intents.dm_messages = True
 
 output = ""
 
@@ -128,12 +135,11 @@ async def modvote(ctx):
 
 @bot.command()
 async def complementarybread(ctx):
-    print(type(ctx))
-    print(type(ctx.message.author))
     user = ctx.message.author
     image = imagefolder + "complementarybread.png"
     await user.send("Hey!", file=discord.File(image))
     await ctx.send("Psst... come with me down this alley!")
+    print(f"Welcome to the bread bank, {user}")
 
 
 @bot.command()
@@ -143,8 +149,44 @@ async def license(ctx):
         await ctx.send(notice)
 
 @bot.command()
-async def booru(ctx, ):
-    pass
+async def booru(ctx, *, tags):
+    try:
+        taglist = []
+        taglist = str.split(tags)
+        postlist = []
+        end = []
+        check = any(item in bannedtags for item in taglist)
+        if check == False:
+            await ctx.send("Searching...")
+            posts = booruclient.post_list(tags=tags, limit=1000)
+            for post in posts:
+                tagstring = dict.get(post, "tag_string")
+                tag = tagstring.split()
+                # print(tagstring)
+                check2 = any(item in tag for item in bannedtags)
+                if check2 == False:
+                    url = dict.get(post, "file_url")
+                    source = dict.get(post, "source")
+                    if source != None:
+                        if pximg in source:
+                            pixiv = source.split("/")
+                            getid = pixiv[11]
+                            getid = getid.split("_p", 1)[0]
+                            source = "https://www.pixiv.net/en/artworks/" + getid
+                        img = f"{url} {source}"
+                        postlist.append(img)
+            random.shuffle(postlist)
+            image = postlist[0]
+            end = image.split()
+            await ctx.send(f"Source: <{end[1]}>")
+            await ctx.send(f"{end[0]}")
+        else:
+            await ctx.send("Your search included tags that has been blocked for NSFW purposes.")
+    except:
+        await ctx.send("Look up failed. You probably typed in an invalid tag.")
+       
+
+    
 
 
 @bot.command()
@@ -253,6 +295,11 @@ async def sex(ctx):
 
 # EVENTS
 
+# @bot.event
+# async def on_message(message):
+#     if not message.guild and message.author != bot.user:
+#         await message.channel.send('hello')
+
 @bot.event
 async def on_member_join(member):
     channel = bot.get_channel(general)
@@ -305,7 +352,7 @@ async def on_message_delete(message):
     avatar = user.avatar_url
     deletedmessage.set_author(name=message.author.name, icon_url=avatar)
     deletedmessage.add_field(name="Author:", value=author, inline=False)
-    deletedmessage.add_field(name="Channel:", value=channel.name, inline=False)
+    deletedmessage.add_field(name="Channel:", value=message.channel.name, inline=False)
     deletedmessage.add_field(name="Contents:", value=content, inline=False)
     await channel.send(embed=deletedmessage)
     print(f"{message.author.name} deleted a message")
