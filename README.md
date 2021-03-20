@@ -1,6 +1,6 @@
 # The-Barkeeper
 
-![MIT Lisence](https://img.shields.io/github/license/hanadrizz/The-Barkeeper)
+![MIT License](https://img.shields.io/badge/License-MIT-lightgrey)
 ![Python Version](https://img.shields.io/badge/python-v3.9-blue)
 ![Discord](https://img.shields.io/discord/752157598232477786)
 
