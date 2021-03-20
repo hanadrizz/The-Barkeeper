@@ -21,6 +21,7 @@ avgredditlookup | After a couple redditsearch commands has been performed, this 
 
 User commands | Output
 ------------ | -------------
+  booru [tags] | Searches safebooru with the specified tags. Each tag is seperated by a space
   avatar [user] | Responds with the specified users' avatar        
   help | Displays a help message
   wiki [page] | Responds with the specified pages' summary and a link
@@ -34,5 +35,5 @@ User commands | Output
   jamaal | Responds with a picture of a cow stuck in a fence with subtitle "jamaal"    
   sex | Responds with "thats what i have with your mom lmao :fire::fire::fire::fire:"
   sus | Responds with "sus"
-  booru | Unused command
+
   
