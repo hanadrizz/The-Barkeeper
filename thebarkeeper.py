@@ -44,8 +44,8 @@ guild = os.getenv("DISCORD_GUILD")
 reddit = apraw.Reddit(client_id = clientid, client_secret = clientsecret, user_agent=useragent, username = username, password=password)
 memefolder = os.getenv("memefolder")
 
-bannedsubs = ["poo", "kropotkistan", "femboy", "trans", "feemagers"]
-bannedtags = ["panties", "pantsu", "pantyshot", "bikini", "swimsuit", "feet", "toes", "ass", "povfeet", "bikini_top", "licking", "saliva", "micro_bikini", "cameltoe"]
+bannedsubs = ["urinalpics", "urinalshitters", "urinalpoop", "poo", "kropotkistan", "femboy", "trans", "feemagers"]
+bannedtags = ["ribbon_bondage", "scat", "no_bra","panties", "pantsu", "pantyshot", "bikini", "swimsuit", "feet", "toes", "ass", "povfeet", "bikini_top", "licking", "saliva", "micro_bikini", "cameltoe"]
 
 
 # USERS AND CHANNELS
@@ -55,6 +55,7 @@ general = 752157598232477789
 memechannel = 752158323574308934
 logs = 821333966173765643
 pinboard = 821796457711534120
+boorulogs = 822132304050389083
 
 modrole = 752158397255647252
 ownerrole = 821756270826618910
@@ -151,39 +152,45 @@ async def license(ctx):
 @bot.command()
 async def booru(ctx, *, tags):
     try:
+        print(f"{ctx.message.author} searched on safebooru for the following tags: {tags}")
         taglist = []
         taglist = str.split(tags)
         postlist = []
         end = []
         check = any(item in bannedtags for item in taglist)
         if check == False:
-            await ctx.send("Searching...")
+            searchmessage = await ctx.send("Searching...")
             posts = booruclient.post_list(tags=tags, limit=1000)
             for post in posts:
                 tagstring = dict.get(post, "tag_string")
                 tag = tagstring.split()
-                # print(tagstring)
                 check2 = any(item in tag for item in bannedtags)
                 if check2 == False:
                     url = dict.get(post, "file_url")
                     source = dict.get(post, "source")
-                    if source != None:
+                    if (source != None) or (url != None):
                         if pximg in source:
                             pixiv = source.split("/")
                             getid = pixiv[11]
                             getid = getid.split("_p", 1)[0]
                             source = "https://www.pixiv.net/en/artworks/" + getid
-                        img = f"{url} {source}"
-                        postlist.append(img)
+                    img = f"{url} {source} {tagstring}"
+                    postlist.append(img)
             random.shuffle(postlist)
             image = postlist[0]
             end = image.split()
             await ctx.send(f"Source: <{end[1]}>")
             await ctx.send(f"{end[0]}")
+            log = bot.get_channel(boorulogs)
+            pickedtags = end[2:]
+            await log.send(f"Image looked up with: {tags}\nPicked image tags: {pickedtags}\n\nURL:{end[0]}")
+            await searchmessage.delete()
+
         else:
             await ctx.send("Your search included tags that has been blocked for NSFW purposes.")
     except:
-        await ctx.send("Look up failed. You probably typed in an invalid tag.")
+        await ctx.send("An error has occured. Check your tags, and/or retry again.")
+    
        
 
     
@@ -344,18 +351,19 @@ async def on_ready():
 
 @bot.event
 async def on_message_delete(message):
-    channel = bot.get_channel(logs)
-    deletedmessage = discord.Embed(title=f"Message deleted.", color=0x9e85cc)
-    author = message.author.name
-    content = message.content
-    user = message.author
-    avatar = user.avatar_url
-    deletedmessage.set_author(name=message.author.name, icon_url=avatar)
-    deletedmessage.add_field(name="Author:", value=author, inline=False)
-    deletedmessage.add_field(name="Channel:", value=message.channel.name, inline=False)
-    deletedmessage.add_field(name="Contents:", value=content, inline=False)
-    await channel.send(embed=deletedmessage)
-    print(f"{message.author.name} deleted a message")
+    if not message.author.bot:
+        channel = bot.get_channel(logs)
+        deletedmessage = discord.Embed(title=f"Message deleted.", color=0x9e85cc)
+        author = message.author.name
+        content = message.content
+        user = message.author
+        avatar = user.avatar_url
+        deletedmessage.set_author(name=message.author.name, icon_url=avatar)
+        deletedmessage.add_field(name="Author:", value=author, inline=False)
+        deletedmessage.add_field(name="Channel:", value=message.channel.name, inline=False)
+        deletedmessage.add_field(name="Contents:", value=content, inline=False)
+        await channel.send(embed=deletedmessage)
+        print(f"{message.author.name} deleted a message")
 
 # ERROR HANDLING
 
@@ -371,6 +379,10 @@ async def wiki_error(ctx, inst):
 async def redditsearch_error(ctx, inst):
     await ctx.send(f"Exception raised. \n\n{inst}")
 
+@booru.error
+async def booru_error(ctx, inst):
+    if isinstance(inst, discord.ext.commands.errors.MissingRequiredArgument):
+        await ctx.send("You need to include tags in your search.")
 bot.run(token)
 
 
