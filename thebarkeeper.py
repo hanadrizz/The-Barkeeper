@@ -5,6 +5,7 @@ import discord
 from discord import file
 from discord.enums import _is_descriptor
 import discord.ext.commands.errors
+from discord.guild import Guild
 from discord.message import Attachment
 import dotenv
 import asyncio
@@ -129,6 +130,17 @@ async def modvote(ctx):
     await ctx.message.add_reaction("👍")
     await ctx.message.add_reaction("👎")
     await ctx.message.add_reaction("👊")
+
+@bot.command()
+@commands.has_role(modrole)
+async def memberlist(ctx):
+    if not ctx.author.bot:
+        server_members = ctx.guild.members 
+        data = "\n".join([str(member.id) for member in server_members])
+        testing = bot.get_channel(bottesting)
+        memberlist = data.split("\n")
+        print(memberlist)
+        print(len(memberlist))
 
     
 
@@ -348,6 +360,7 @@ async def on_reaction_add(reaction, user):
 @bot.event
 async def on_ready():
     print(f'Bot has connected to Discord!')
+    
 
 @bot.event
 async def on_message_delete(message):
