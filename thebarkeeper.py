@@ -279,7 +279,7 @@ async def sex(ctx):
 async def on_message(message):
     ctx = message.channel
     if message.author != bot.user:
-        if message.content in wordfilter:
+        if any(word in message.content for word in wordfilter):
             await message.delete()
             await ctx.send("Hey! You can't say that!", delete_after=5)
         else:
