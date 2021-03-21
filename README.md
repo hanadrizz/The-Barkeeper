@@ -21,7 +21,7 @@ avgredditlookup | After a couple redditsearch commands has been performed, this 
 
 User commands | Output
 ------------ | -------------
-  booru [tags] | Searches safebooru with the specified tags. Each tag is seperated by a space
+  booru [tags] | Disabled at the moment due to faulty library
   avatar [user] | Responds with the specified users' avatar        
   help | Displays a help message
   wiki [page] | Responds with the specified pages' summary and a link
