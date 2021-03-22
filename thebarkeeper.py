@@ -55,7 +55,7 @@ async def denied(ctx, avatar):
     await ctx.send(embed=x)
 
 async def mining(ctx, num1, userid):
-    x = random.randint(0, 100)
+    x = random.randint(1, 100)
     num2 = 100 - num1
     if x <= num2:
         await ctx.send("Too bad, you only found rocks and scraps!")
