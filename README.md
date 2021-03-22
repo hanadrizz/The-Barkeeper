@@ -5,6 +5,7 @@
 ![Discord](https://img.shields.io/discord/752157598232477786)
 
 Fun exercise in making a bot. Personalized for my own server at: https://discord.gg/XGRzEhXAug
+This bot is not adjusted for simple download and use. Probably will do eventually.
 
 # Prefix
 Prefix is ^

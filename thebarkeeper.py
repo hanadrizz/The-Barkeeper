@@ -1,9 +1,6 @@
-from configparser import Error
 import apraw
 import os, random
 import discord
-from discord import file
-from discord.enums import _is_descriptor
 import discord.ext.commands.errors
 from discord.guild import Guild
 from discord.message import Attachment
@@ -15,6 +12,63 @@ import textwrap
 import time
 import datetime
 import configparser
+from tinydb import TinyDB, Query
+from tinydb.operations import set
+import typing
+
+database = TinyDB("database.json", sort_keys=True, indent=4, separators=(',', ': '))
+data = Query()
+
+def getPickaxeLevel(userid):
+    datasearch = database.search(data.userid == userid)
+    record = datasearch[0]
+    pickaxelevel = record["pickaxetier"]
+    return pickaxelevel
+
+def changePickaxeLevel(userid, level):
+    database.upsert({"pickaxetier": level}, data.userid == userid)
+
+def getUserMoney(userid):
+    datasearch = database.search(data.userid == userid)
+    record = datasearch[0]
+    money = record["money"]
+    return money
+
+def subtractMoney(userid, amount: int):
+    datasearch = database.search(data.userid == userid)
+    record = datasearch[0]
+    money = record["money"]
+    money = money - amount
+    database.upsert({"money":money}, data.userid == userid)
+
+def addMoney(userid, amount):
+    datasearch = database.search(data.userid == userid)
+    record = datasearch[0]
+    money = record["money"]
+    money = money + amount
+    database.upsert({"money":money}, data.userid == userid)
+
+async def denied(ctx, avatar):
+    x = discord.Embed(title="Shop", color=0xff0000, description = f"Sorry {ctx.author.mention}, I can't give credit! Come back when you're a little... mmm... richer")
+    x.set_author(name=ctx.author.name, icon_url=avatar)
+    x.set_image(url="https://cdn.discordapp.com/attachments/821123717223415809/823315107261055006/morshu.gif")
+    await ctx.send(embed=x)
+
+async def mining(ctx, num1, userid):
+    x = random.randint(0, 100)
+    num2 = 100 - num1
+    if x <= num2:
+        await ctx.send("Too bad, you only found rocks and scraps!")
+    else:
+        y = random.randint(25, 200)
+        await ctx.send(f"Woah, you found a gold ore! It's worth {y} :coin:! Lucky you!")
+        addMoney(userid, y)
+        
+    
+pickaxetiers = ["wood","stone","copper","iron","steel","gold","diamond","platinum"]
+pickaxecost = {"wood": 0,"stone": 50,"copper": 150,"iron": 500,"steel": 1500,"gold": 3000,"diamond": 5000,"platinum": 10000}
+miningchances = {1 : 35, 2 : 45, 3 : 50, 4 : 60, 5 : 70, 6 : 80, 7 : 90, 8 : 95}
+
 
 imagefolder = "images\\"
 pximg = "i.pximg.net"
@@ -33,7 +87,7 @@ print('Configuration:')
 print(f'ID: {clientid}')
 print(f'Client Secret: {clientsecret}')
 print(f'Useragent: {useragent}')
-print(f'Database: {username}')
+print(f'Reddit username: {username}')
 
 dotenv.load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
@@ -129,18 +183,80 @@ async def modvote(ctx):
     await ctx.message.add_reaction("👊")
 
 @bot.command()
-@commands.has_role(modrole)
+@commands.has_role(ownerrole)
 async def memberlist(ctx):
     if not ctx.author.bot:
-        server_members = ctx.guild.members 
-        data = "\n".join([str(member.id) for member in server_members])
-        testing = bot.get_channel(bottesting)
-        memberlist = data.split("\n")
-        print(memberlist)
-        print(len(memberlist))
+        server_members = ctx.guild.members
+        
+            
+# ECONOMY
 
+@bot.command()
+async def balance(ctx):
+    userid = ctx.author.id
+    balance = getUserMoney(userid)
+    await ctx.send(f"Your balance is {balance} :coin:")
+
+
+@bot.command()
+async def shop(ctx, arg="help", *, item=""):
+    user = ctx.author
+    userid = user.id
+    avatar = user.avatar_url
+    image = imagefolder + "morshu.gif"
+
+    if "list" in arg:
+        shop=discord.Embed(title="Shop", description="The one destination for all your needs!", color=0xff0000)
+        shop.set_author(name=ctx.author.name, icon_url=avatar)
+        pickaxelevel = getPickaxeLevel(userid)
+        output = ""
+        for i in range(len(pickaxetiers)):
+            if i+1 <= pickaxelevel:
+                output = output + f"{pickaxetiers[i]} pickaxe: You already own this item \n"
+            else:
+                output = output + f"{pickaxetiers[i]} pickaxe: {pickaxecost[pickaxetiers[i]]} :coin:\n"
+        shop.add_field(name="Pickaxes", value=output, inline=True)
+        shop.set_footer(text = "^shop buy [item]")
+        
+        await ctx.send(embed=shop)
+
+    elif "help" in arg:
+        await ctx.send("``shop buy [item]`` to buy things and ``shop list`` to see list.")
+
+    elif "buy" in arg:
+        pickaxelevel = getPickaxeLevel(userid)
+        money = getUserMoney(userid)
+        items = ['wood', 'stone', 'copper', 'iron', "steel", 'gold', 'diamond', 'platinum']
+        for i in item.lower().split():
+          if i in items:
+            Newpickaxelevel = items.index(i) + 1
+            cost = dict.get(pickaxecost, i)
+            if money < cost:
+              await denied(ctx, avatar)
+            elif pickaxelevel >= Newpickaxelevel:
+              await ctx.send("You already own this pickaxe, sorry!")
+            else:
+              changePickaxeLevel(userid, Newpickaxelevel)
+              subtractMoney(userid, cost)
+              await ctx.send(f"You have successfully gotten a {i} pickaxe! Happy mining!")
+    else:
+        await ctx.send("Invalid command. ``shop buy [item]`` to buy things and ``shop list`` to see list.")  
+            
+#@commands.cooldown(rate=1, per=3, type=commands.BucketType.user)
+@bot.command()
+async def mine(ctx):
+    user = ctx.author
+    userid = user.id
+    pickaxelevel = getPickaxeLevel(userid)
     
+    if pickaxelevel == 0:
+        await ctx.send(f"You don't own a pickaxe yet! You need to buy it from the shop! Check our collection at ```^shop list```")
 
+    elif pickaxelevel > 0:
+        await mining(ctx, miningchances[pickaxelevel], userid)
+
+        
+    
 # USER COMMANDS    
 
 @bot.command()
@@ -156,6 +272,7 @@ async def complementarybread(ctx):
 async def license(ctx):
     with open("LICENSE", "r") as license:
         notice = license.read()
+        notice = notice + "\n\nRepository can be found at <https://github.com/hanadrizz/The-Barkeeper>"
         await ctx.send(notice)
 
 @bot.command()
@@ -185,22 +302,6 @@ async def wiki(ctx, *, page):
         for i in summary_list:
             await ctx.channel.send(i)
         await ctx.channel.send(f"<{site.url}>")
-
-
-
-# @bot.command()
-# async def meme(ctx):
-#     meme = random.choice(os.listdir(memefolder))
-#     memelocation = f"{memefolder}\\{meme}"
-#     print(memelocation)
-#     filestats = os.stat(memelocation)
-#     filesize = filestats.st_size
-#     print(filesize)
-#     if filesize > 8388608:
-#         ctx.send("The meme randomly selected was too large.")
-#     else:
-#         area=ctx.message.channel
-#         await ctx.send(file=discord.File(memelocation))
 
 @bot.command()
 async def redditsearch(ctx, sub):
@@ -270,11 +371,6 @@ async def sex(ctx):
 
 # EVENTS
 
-# @bot.event
-# async def on_message(message):
-#     if not message.guild and message.author != bot.user:
-#         await message.channel.send('hello')
-
 @bot.event
 async def on_message(message):
     ctx = message.channel
@@ -293,10 +389,13 @@ async def on_message(message):
 @bot.event
 async def on_member_join(member):
     channel = bot.get_channel(general)
-    await channel.send(f"Welcome {member.mention} to The Bar! You can get roles by pinging Roleypoly! Be sure to read the rules over at <#755155329502675066> aswell! Have a nice day!")
+    # await channel.send(f"Welcome {member.mention} to The Bar! You can get roles by pinging Roleypoly! Be sure to read the rules over at <#755155329502675066> aswell! Have a nice day!")
     role = discord.utils.get(member.guild.roles, id=752163420962422795)
     await member.add_roles(role)
     print(f"{member} joined.")
+    check = database.search(data.userid == member.id)
+    if check == []:
+        database.insert({"userid": member.id, "money": 0})
 
 @bot.event
 async def on_reaction_add(reaction, user):
@@ -350,6 +449,12 @@ async def on_message_delete(message):
         print(f"{message.author.name} deleted a message")
 
 # ERROR HANDLING
+
+@bot.event
+async def on_command_error(ctx, error):
+    await ctx.send(error)
+
+
 
 @avatar.error
 async def avatar_error(ctx, error):
