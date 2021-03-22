@@ -54,18 +54,26 @@ async def denied(ctx, avatar):
     await ctx.send(embed=x)
 
 async def mining(ctx, num1, userid):
+    memb = bot.get_user(userid)
     x = random.randint(1, 100)
     num2 = 100 - num1
     if x <= num2:
-        await ctx.send("Too bad, you only found rocks and scraps!")
+        await ctx.send(f"Too bad, you only found rocks and scraps! {memb.mention}")
     else:
         y = random.randint(25, 200)
-        await ctx.send(f"Woah, you found a gold ore! It's worth {y} :coin:! Lucky you!")
+        await ctx.send(f"Woah, you found a gold ore! It's worth {y} :coin:! Lucky you! {memb.mention}")
         addMoney(userid, y)
         
     
 pickaxetiers = ["wood","stone","copper","iron","steel","gold","diamond","platinum"]
-pickaxecost = {"wood": 0,"stone": 50,"copper": 150,"iron": 500,"steel": 1500,"gold": 3000,"diamond": 5000,"platinum": 10000}
+pickaxecost = {"wood":           0,
+                "stone":     10000,
+                "copper":    20000,
+                "iron":      50000,
+                "steel":    100000,
+                "gold":     150000,
+                "diamond":  300000,
+                "platinum": 500000}
 miningchances = {1 : 35, 2 : 45, 3 : 50, 4 : 60, 5 : 70, 6 : 80, 7 : 90, 8 : 95}
 
 
@@ -197,6 +205,10 @@ async def balance(ctx):
     await ctx.send(f"Your balance is {balance} :coin:")
 
 @bot.command()
+async def bal(ctx):
+    await balance(ctx)
+
+@bot.command()
 async def shop(ctx, arg="help", *, item=""):
     user = ctx.author
     userid = user.id
@@ -239,7 +251,7 @@ async def shop(ctx, arg="help", *, item=""):
     else:
         await ctx.send("Invalid command. ``shop buy [item]`` to buy things and ``shop list`` to see list.")  
             
-#@commands.cooldown(rate=1, per=3, type=commands.BucketType.user)
+@commands.cooldown(rate=1, per=3, type=commands.BucketType.user)
 @bot.command()
 async def mine(ctx):
     user = ctx.author
@@ -427,6 +439,7 @@ async def on_reaction_add(reaction, user):
 @bot.event
 async def on_ready():
     print(f'Bot has connected to Discord!')
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="for rulebreakers, beware!"))
     if os.stat("database.json").st_size == 0:
         server = bot.get_guild(752157598232477786)
         servermembers = server.members
@@ -455,8 +468,6 @@ async def on_message_delete(message):
 @bot.event
 async def on_command_error(ctx, error):
     await ctx.send(error)
-
-
 
 @avatar.error
 async def avatar_error(ctx, error):
