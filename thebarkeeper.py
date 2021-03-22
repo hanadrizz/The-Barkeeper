@@ -2,7 +2,6 @@ import apraw
 import os, random
 import discord
 import discord.ext.commands.errors
-from discord.guild import Guild
 from discord.message import Attachment
 import dotenv
 import asyncio
@@ -197,13 +196,11 @@ async def balance(ctx):
     balance = getUserMoney(userid)
     await ctx.send(f"Your balance is {balance} :coin:")
 
-
 @bot.command()
 async def shop(ctx, arg="help", *, item=""):
     user = ctx.author
     userid = user.id
     avatar = user.avatar_url
-    image = imagefolder + "morshu.gif"
 
     if "list" in arg:
         shop=discord.Embed(title="Shop", description="The one destination for all your needs!", color=0xff0000)
@@ -389,13 +386,13 @@ async def on_message(message):
 @bot.event
 async def on_member_join(member):
     channel = bot.get_channel(general)
-    # await channel.send(f"Welcome {member.mention} to The Bar! You can get roles by pinging Roleypoly! Be sure to read the rules over at <#755155329502675066> aswell! Have a nice day!")
+    await channel.send(f"Welcome {member.mention} to The Bar! You can get roles by pinging Roleypoly! Be sure to read the rules over at <#755155329502675066> aswell! Have a nice day!")
     role = discord.utils.get(member.guild.roles, id=752163420962422795)
     await member.add_roles(role)
     print(f"{member} joined.")
     check = database.search(data.userid == member.id)
     if check == []:
-        database.insert({"userid": member.id, "money": 0})
+        database.insert({"userid": member.id, "money": 0, "pickaxetier": 0})
 
 @bot.event
 async def on_reaction_add(reaction, user):
@@ -430,6 +427,11 @@ async def on_reaction_add(reaction, user):
 @bot.event
 async def on_ready():
     print(f'Bot has connected to Discord!')
+    if os.stat("database.json").st_size == 0:
+        server = bot.get_guild(752157598232477786)
+        servermembers = server.members
+        for member in servermembers:
+            database.insert({"userid": member.id, "money": 0, "pickaxetier": 0})
     
 
 @bot.event
@@ -469,6 +471,3 @@ async def redditsearch_error(ctx, inst):
     await ctx.send(f"Exception raised. \n\n{inst}")
 
 bot.run(token)
-
-
-
