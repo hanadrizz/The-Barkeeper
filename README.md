@@ -43,7 +43,7 @@ User commands | Output
   sex | Responds with "thats what i have with your mom lmao :fire::fire::fire::fire:"
   sus | Responds with "sus"
   rps [move] | You can't win at "Rock Paper Scissors"
-  complementarybread | pun on the word "compliment" and the complementary bread you receive at resturants. The bot sends you a private message with an image of a bread with the caption "You're cute."
+  complementarybread | Pun on the word "compliment" and the complementary bread you receive at resturants. The bot sends you a private message with an image of a bread with the caption "You're cute."
 
 
   
