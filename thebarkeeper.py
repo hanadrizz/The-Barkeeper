@@ -14,6 +14,7 @@ import configparser
 from tinydb import TinyDB, Query
 from tinydb.operations import set
 import typing
+from pretty_help import PrettyHelp
 
 database = TinyDB("database.json", sort_keys=True, indent=4, separators=(',', ': '))
 data = Query()
@@ -132,28 +133,28 @@ Intents.reactions = True
 Intents.dm_messages = True
 
 output = ""
-
-bot = commands.Bot(command_prefix="^", intents=Intents)
+description = "Commands for The Barkeeper"
+bot = commands.Bot(command_prefix="^", intents=Intents, description=description)
 
 # MODERATOR COMMANDS
 
 processed = []
 
-@bot.command()
+@bot.command(brief="Average time it took to look up posts", description="Displays the average time it took the bot to look up and respond with the images it was tasked to search for")
 @commands.has_role(modrole)
 async def avgredditlookup(ctx):
     results = sum(processed) / len(processed)
     await ctx.send(f"The average time to look up reddit posts is **{results} seconds**")
     
 
-@bot.command()
+@bot.command(brief='Sends a message as the bot', description='Sends a message as the bot')
 @commands.has_role(ownerrole)
 async def sendmessage(ctx, channel: int, *, arg):
     cha = bot.get_channel(channel)
     print(f"User {ctx.message.author} sent {arg}")
     await cha.send(arg)
 
-@bot.command()
+@bot.command(brief="Bans the user", description="Bans the user")
 @commands.has_role(modrole)
 async def ban(ctx, user: discord.Member, *reason):
     if user == None or user == ctx.message.author:
@@ -175,40 +176,29 @@ async def ban(ctx, user: discord.Member, *reason):
                 await ctx.channel.send(f"Banned {user}")
                 print(f"{user} banned")
 
-@bot.command()
+@bot.command(brief="Unbans the user", description="Unbans the user")
 @commands.has_role(modrole)
 async def pardon(ctx, id: int):
     user = await bot.fetch_user(id)
     await ctx.guild.unban(user)
     await ctx.send(f"User <@!{id}> has been pardoned.")
 
-@bot.command()
+@bot.command(brief="Reacts with emotes to be used as votes", description="Thumbs up: Yes | Thumbs down: No | Fist: Abstain")
 @commands.has_role(modrole)
 async def modvote(ctx):
     await ctx.message.add_reaction("👍")
     await ctx.message.add_reaction("👎")
     await ctx.message.add_reaction("👊")
-
-@bot.command()
-@commands.has_role(ownerrole)
-async def memberlist(ctx):
-    if not ctx.author.bot:
-        server_members = ctx.guild.members
-        
             
 # ECONOMY
 
-@bot.command()
+@bot.command(brief="Displays the user's balance", description="Displays the user's balance", aliases=["bal","bank","money"])
 async def balance(ctx):
     userid = ctx.author.id
     balance = getUserMoney(userid)
     await ctx.send(f"Your balance is {balance} :coin:")
 
-@bot.command()
-async def bal(ctx):
-    await balance(ctx)
-
-@bot.command()
+@bot.command(brief="Access the shop", description="Main command to access, buy and find items in the shop.")
 async def shop(ctx, arg="help", *, item=""):
     user = ctx.author
     userid = user.id
@@ -252,7 +242,7 @@ async def shop(ctx, arg="help", *, item=""):
         await ctx.send("Invalid command. ``shop buy [item]`` to buy things and ``shop list`` to see list.")  
             
 @commands.cooldown(rate=1, per=3, type=commands.BucketType.user)
-@bot.command()
+@bot.command(brief="Mines for money", description="Randomized chance to find ores or scraps. Better pickaxes give out more often rewards")
 async def mine(ctx):
     user = ctx.author
     userid = user.id
@@ -268,7 +258,7 @@ async def mine(ctx):
     
 # USER COMMANDS
 
-@bot.command()
+@bot.command(brief="Rock, paper, scissors", description="For some reason, people always lose.")
 async def rps(ctx, choice=""):
     if choice == "":
         await ctx.send("You need to pick between ``rock``, ``paper`` or ``scissor``")
@@ -282,7 +272,7 @@ async def rps(ctx, choice=""):
     else:
         await ctx.send("Correct command usage is ``^rps [choice]")
 
-@bot.command()
+@bot.command(brief="Why don't you try me out?", description="we love some puns dont we")
 async def complementarybread(ctx):
     user = ctx.message.author
     image = imagefolder + "complementarybread.png"
@@ -291,20 +281,20 @@ async def complementarybread(ctx):
     print(f"Welcome to the bread bank, {user}")
 
 
-@bot.command()
+@bot.command(brief="Bot license", description="Displays the MIT license for the bot's code, including its Github link")
 async def license(ctx):
     with open("LICENSE", "r") as license:
         notice = license.read()
         notice = notice + "\n\nRepository can be found at <https://github.com/hanadrizz/The-Barkeeper>"
         await ctx.send(notice)
 
-@bot.command()
+@bot.command(brief="Sends back the latency for the bot", description="Sends back how long it takes for the bot to respond. Good for checking if the bot is online.")
 async def ping(ctx):
     await ctx.send(f"Pong! **{bot.latency}ms**")
     print(f"{ctx.message.author.name} pinged")
 
 wikipage = MediaWiki()
-@bot.command()
+@bot.command(brief="Looks up a summary of a wikipedia page", description="Looks up a summary of a wikipedia page")
 async def wiki(ctx, *, page):
     print(f"{ctx.message.author.name} requested {page}")
     try:
@@ -322,7 +312,7 @@ async def wiki(ctx, *, page):
             await ctx.channel.send(i)
         await ctx.channel.send(f"<{site.url}>")
 
-@bot.command()
+@bot.command(brief="Searches for a random image in a specified subreddit", description="Searchees for a random image in a specified subreddit")
 async def redditsearch(ctx, sub):
     try:
         print(f"{ctx.message.author.name} searched for an image in r/{sub}")
@@ -363,27 +353,27 @@ async def redditsearch(ctx, sub):
     except:
         await ctx.send(f"Fetching image failed. This is most likely due to using non-standard search term. Correct usage is ``^redditsearch [subreddit name]``. Without the r/")
 
-@bot.command()
+@bot.command(brief="Returns the specified users' avatar", description="Displays the specified user's avatar")
 async def avatar(ctx, *,  avamember : discord.Member=None):
     userAvatarUrl = avamember.avatar_url
     await ctx.send(userAvatarUrl)
     print(f"{ctx.message.author.name} looked up {avamember}'s avatar.")
     
-@bot.command()
+@bot.command(brief="thats a bit SUSSY", description="amogus")
 async def sus(ctx):
     await ctx.send("sus")
     print(f"{ctx.message.author.name} sus")
 
-@bot.command()
+@bot.command(brief="moo", description="moo")
 async def jamaal(ctx):
     await ctx.send("man\nhttps://cdn.discordapp.com/attachments/821123717223415809/821642340359733258/f4xz3iryogm61.jpg")
     print(f"{ctx.message.author.name} jamaal")
 
-@bot.command()
+@bot.command(brief="Hug a user!", description="Hug a user!")
 async def hug(ctx, arg : discord.Member=None):
     await ctx.send(f"<@{ctx.message.author.id}> is hugging <@{arg.id}>! :people_hugging:")
     
-@bot.command()
+@bot.command(brief="heehoo i have the mentality of a six year old", description="im still six years old")
 async def sex(ctx):
     await ctx.send("thats what i have with your mom lmao 🔥🔥🔥🔥")
     print(f"{ctx.message.author.name} sex")
