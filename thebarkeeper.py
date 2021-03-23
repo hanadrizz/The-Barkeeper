@@ -134,7 +134,7 @@ Intents.dm_messages = True
 
 output = ""
 description = "Commands for The Barkeeper"
-bot = commands.Bot(command_prefix="^", intents=Intents, description=description)
+bot = commands.Bot(command_prefix="^", intents=Intents, description=description, help_command=PrettyHelp())
 
 # MODERATOR COMMANDS
 
