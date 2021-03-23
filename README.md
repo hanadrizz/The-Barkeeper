@@ -19,10 +19,16 @@ sendmessage [channel id] [message] | Sends a message in the specified channel as
 modvote | The bot reacts with three emotes to the command message, a thumbs up, a thumbs down, and a fist. These represents "Yay", "Nay", "Abstain"
 avgredditlookup | After a couple redditsearch commands has been performed, this command outputs the average amount of time it took to find and post images.
 
+Economy commands | Output
+------------ | -------------
+balance | Displays the user's balance
+bal | See ^balance
+mine | Roll for a chance to get money or nothing. Chances depend on which pickaxe you own
+shop list | Shows a list of items you can buy in the shop
+shop buy [item] | Buys the item if you have enough
 
 User commands | Output
 ------------ | -------------
-  booru [tags] | Disabled at the moment due to faulty library
   avatar [user] | Responds with the specified users' avatar        
   help | Displays a help message
   wiki [page] | Responds with the specified pages' summary and a link
@@ -36,5 +42,8 @@ User commands | Output
   jamaal | Responds with a picture of a cow stuck in a fence with subtitle "jamaal"    
   sex | Responds with "thats what i have with your mom lmao :fire::fire::fire::fire:"
   sus | Responds with "sus"
+  rps [move] | You can't win at "Rock Paper Scissors"
+  complementarybread | pun on the word "compliment" and the complementary bread you receive at resturants. The bot sends you a private message with an image of a bread with the caption "You're cute."
+
 
   

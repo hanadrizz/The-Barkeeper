@@ -266,7 +266,21 @@ async def mine(ctx):
 
         
     
-# USER COMMANDS    
+# USER COMMANDS
+
+@bot.command()
+async def rps(ctx, choice=""):
+    if choice == "":
+        await ctx.send("You need to pick between ``rock``, ``paper`` or ``scissor``")
+
+    elif choice == "rock":
+        await ctx.send("You lose!")
+    elif choice == "paper":
+        await ctx.send("You lose!")
+    elif choice == "scissor":
+        await ctx.send("You lose!")
+    else:
+        await ctx.send("Correct command usage is ``^rps [choice]")
 
 @bot.command()
 async def complementarybread(ctx):
@@ -283,10 +297,6 @@ async def license(ctx):
         notice = license.read()
         notice = notice + "\n\nRepository can be found at <https://github.com/hanadrizz/The-Barkeeper>"
         await ctx.send(notice)
-
-@bot.command()
-async def booru(ctx):
-    await ctx.send("Undergoing maintenance. Bully Maria in the meantime.") 
 
 @bot.command()
 async def ping(ctx):
