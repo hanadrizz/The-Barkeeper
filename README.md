@@ -23,6 +23,7 @@ Economy commands | Output
 ------------ | -------------
 balance | Displays the user's balance
 bal | See ^balance
+leaderboard | Displays the top 5 richest users on the server
 mine | Roll for a chance to get money or nothing. Chances depend on which pickaxe you own
 shop list | Shows a list of items you can buy in the shop
 shop buy [item] | Buys the item if you have enough
