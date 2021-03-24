@@ -2,3 +2,4 @@
 *.ini
 *.env
 *.json
+*.pyc
