@@ -1,6 +1,5 @@
 import discord
 import discord.ext.commands.errors
-from discord.message import Attachment
 import dotenv
 import asyncio
 from discord.ext import commands
@@ -126,7 +125,6 @@ class Economy(commands.Cog):
             money = getUserMoney(self, userid)
             items = ['wood', 'stone', 'copper', 'iron', "steel", 'gold', 'diamond', 'platinum']
             for i in item.lower().split():
-                print(i)
                 if i in items:
                     Newpickaxelevel = items.index(i) + 1
                     cost = dict.get(pickaxecost, i)

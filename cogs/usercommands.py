@@ -1,6 +1,5 @@
 import discord
 import discord.ext.commands.errors
-from discord.message import Attachment
 import dotenv
 import asyncio
 from discord.ext import commands

@@ -1,5 +1,5 @@
 import apraw
-import os, random
+import os
 import discord
 import discord.ext.commands.errors
 from discord.message import Attachment
