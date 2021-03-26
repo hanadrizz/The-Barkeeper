@@ -6,6 +6,7 @@ from discord.ext import commands
 import os
 from pretty_help import PrettyHelp
 from tinydb import TinyDB, Query
+from TextToOwO.owo import text_to_owo
 
 Intents = discord.Intents.default()
 Intents.members = True
@@ -24,6 +25,11 @@ imagefolder = "images\\"
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+    
+    @bot.command(brief="OwO, whats this? uwaaa >.<")
+    async def owo(self, ctx, *, text):
+        text = text_to_owo(text)
+        await ctx.send(text)
 
     @bot.command(brief="Rock, paper, scissors", description="For some reason, people always lose.")
     async def rps(self, ctx, choice=""):
