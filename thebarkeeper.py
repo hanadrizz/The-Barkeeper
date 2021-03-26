@@ -31,6 +31,9 @@ useragent = config['reddit']['user_agent']
 username = config['reddit']['username']
 password = config['reddit']['password']
 
+guild = config['discord']['guild']
+token = config['discord']['token']
+
 print('Configuration:')
 
 print(f'ID: {clientid}')
@@ -38,9 +41,6 @@ print(f'Client Secret: {clientsecret}')
 print(f'Useragent: {useragent}')
 print(f'Reddit username: {username}')
 
-dotenv.load_dotenv()
-token = os.getenv('DISCORD_TOKEN')
-guild = os.getenv("DISCORD_GUILD")
 
 reddit = apraw.Reddit(client_id = clientid, client_secret = clientsecret, user_agent=useragent, username = username, password=password)
 
