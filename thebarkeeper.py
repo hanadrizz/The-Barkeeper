@@ -55,6 +55,7 @@ memechannel = 752158323574308934
 logs = 821333966173765643
 pinboard = 821796457711534120
 boorulogs = 822132304050389083
+verf = 824759015623884850
 
 modrole = 752158397255647252
 ownerrole = 821756270826618910
@@ -90,6 +91,20 @@ async def reload(ctx):
     bot.load_extension("cogs.mod")
     await ctx.send("Reloaded.")
     print("#"*30)
+
+
+@bot.command(brief="Verifies the user for the NSFW channel.")
+async def verify(ctx):
+    verify = bot.get_channel(verf)
+    mes = ctx.message
+    if ctx.message.channel == verify:
+        member = ctx.message.author
+        role = discord.utils.get(member.guild.roles, id=824761214445682730)
+        await member.add_roles(role)
+        await mes.delete()
+        await ctx.send("Verified", delete_after=5)
+    else:
+        pass
 
 # EVENTS
 
@@ -163,18 +178,20 @@ async def on_ready():
 @bot.event
 async def on_message_delete(message):
     if not message.author.bot:
-        channel = bot.get_channel(logs)
-        deletedmessage = discord.Embed(title=f"Message deleted.", color=0x9e85cc)
-        author = message.author.name
-        content = message.content
-        user = message.author
-        avatar = user.avatar_url
-        deletedmessage.set_author(name=message.author.name, icon_url=avatar)
-        deletedmessage.add_field(name="Author:", value=author, inline=False)
-        deletedmessage.add_field(name="Channel:", value=message.channel.name, inline=False)
-        deletedmessage.add_field(name="Contents:", value=content, inline=False)
-        await channel.send(embed=deletedmessage)
-        print(f"{message.author.name} deleted a message")
+        verify = bot.get_channel(verf)
+        if message.channel != verify:
+            channel = bot.get_channel(logs)
+            deletedmessage = discord.Embed(title=f"Message deleted.", color=0x9e85cc)
+            author = message.author.name
+            content = message.content
+            user = message.author
+            avatar = user.avatar_url
+            deletedmessage.set_author(name=message.author.name, icon_url=avatar)
+            deletedmessage.add_field(name="Author:", value=author, inline=False)
+            deletedmessage.add_field(name="Channel:", value=message.channel.name, inline=False)
+            deletedmessage.add_field(name="Contents:", value=content, inline=False)
+            await channel.send(embed=deletedmessage)
+            print(f"{message.author.name} deleted a message")
 
 # ERROR HANDLING
 
