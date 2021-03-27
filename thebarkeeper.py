@@ -76,7 +76,7 @@ output = ""
 description = "Commands for The Barkeeper"
 bot = commands.Bot(command_prefix="^", intents=Intents, description=description, help_command=PrettyHelp())
 
-@bot.command(brief="Reloads the bot", description="Reloads the bot")
+@bot.command(brief="Reloads the bot", description="Reloads the bot", hidden=True)
 @commands.has_role(modrole)
 async def reload(ctx):
     await ctx.send("Reloading...")
@@ -91,20 +91,6 @@ async def reload(ctx):
     bot.load_extension("cogs.mod")
     await ctx.send("Reloaded.")
     print("#"*30)
-
-
-@bot.command(brief="Verifies the user for the NSFW channel.")
-async def verify(ctx):
-    verify = bot.get_channel(verf)
-    mes = ctx.message
-    if ctx.message.channel == verify:
-        member = ctx.message.author
-        role = discord.utils.get(member.guild.roles, id=824761214445682730)
-        await member.add_roles(role)
-        await mes.delete()
-        await ctx.send("Verified", delete_after=5)
-    else:
-        pass
 
 # EVENTS
 

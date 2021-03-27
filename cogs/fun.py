@@ -23,6 +23,7 @@ data = Query()
 imagefolder = "images\\"
 
 class Fun(commands.Cog):
+    """the stupidest commands can be found here"""
     def __init__(self, bot):
         self.bot = bot
     

@@ -37,15 +37,33 @@ bot = commands.Bot(command_prefix="^", intents=Intents, description=description,
 processed = []
 
 class User(commands.Cog):
+    """General purpose commands"""
     def __init__(self, bot):
         self.bot = bot
 
-    @bot.command(brief="Bot license", description="Displays the MIT license for the bot's code, including its Github link")
+    @bot.command(brief="Bot license", description="Displays the GNU GPLv3 license for the bot's code, including its Github link")
     async def license(self, ctx):
-        with open("LICENSE", "r") as license:
-            notice = license.read()
-            notice = notice + "\n\nRepository can be found at <https://github.com/hanadrizz/The-Barkeeper>"
-            await ctx.send(notice)
+        await ctx.send("""The Barkeeper is licensed under the GNU VERSION 3 GENERAL PUBLIC LICENSE.
+
+        The GNU General Public License is a free, copyleft license for software and other kinds of works.
+
+        The licensed material and derivatives may be used for commercial purposes.
+        The licensed material may be distributed.
+        The licensed material may be modified.
+        This license provides an express grant of patent rights from contributors.
+        The licensed material may be used and modified in private.
+
+        Source code must be made available when the licensed material is distributed.
+        A copy of the license and copyright notice must be included with the licensed material.
+        Modifications must be released under the same license when distributing the licensed material.
+        Changes made to the licensed material must be documented.
+
+        This license includes a limitation and/or no liability.
+        This liceense explicitly states that it does NOT provide any warranty.
+
+        The full license document may be read at <https://choosealicense.com/licenses/gpl-3.0/>
+        The repository may be found at  <https://github.com/hanadrizz/The-Barkeeper>
+        """)
 
     @bot.command(brief="Sends back the latency for the bot", description="Sends back how long it takes for the bot to respond. Good for checking if the bot is online.")
     async def ping(self, ctx):
@@ -121,6 +139,19 @@ class User(commands.Cog):
         userAvatarUrl = avamember.avatar_url
         await ctx.send(userAvatarUrl)
         print(f"{ctx.message.author.name} looked up {avamember}'s avatar.")
+    
+    @bot.command(brief="Verifies the user for the NSFW channel.", hidden=True)
+    async def verify(ctx):
+        verify = bot.get_channel(verf)
+        mes = ctx.message
+        if ctx.message.channel == verify:
+            member = ctx.message.author
+            role = discord.utils.get(member.guild.roles, id=824761214445682730)
+            await member.add_roles(role)
+            await mes.delete()
+            await ctx.send("Verified", delete_after=5)
+        else:
+            pass
 
 def setup(bot):
     bot.add_cog(User(bot))

@@ -21,6 +21,7 @@ ownerrole = 821756270826618910
 processed = []
 
 class Moderator(commands.Cog):
+    """Commands for moderating purposes"""
     def __init__(self, bot):
         self.bot = bot
 

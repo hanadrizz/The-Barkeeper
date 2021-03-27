@@ -77,10 +77,11 @@ pickaxecost = {"wood":           0,
                 "gold":     150000,
                 "diamond":  300000,
                 "platinum": 500000}
-miningchances = {1 : 35, 2 : 45, 3 : 50, 4 : 60, 5 : 70, 6 : 80, 7 : 90, 8 : 95}
+miningchances = {1 : 30, 2 : 40, 3 : 50, 4 : 60, 5 : 70, 6 : 80, 7 : 90, 8 : 95}
 
 
 class Economy(commands.Cog):
+    """Capitalism in a nutshell. Use money, I guess"""
 
     def __init__(self, bot):
         self.bot = bot
@@ -139,7 +140,7 @@ class Economy(commands.Cog):
         else:
             await ctx.send("Invalid command. ``shop buy [item]`` to buy things and ``shop list`` to see list.")  
             
-    @commands.cooldown(rate=1, per=2, type=commands.BucketType.user)
+    @commands.cooldown(rate=1, per=5, type=commands.BucketType.user)
     @bot.command(brief="Mines for money", description="Randomized chance to find ores or scraps. Better pickaxes give out more often rewards")
     async def mine(self, ctx):
         user = ctx.message.author
