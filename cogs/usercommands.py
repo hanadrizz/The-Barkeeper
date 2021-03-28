@@ -11,6 +11,7 @@ from mediawiki import MediaWiki
 import textwrap
 import time
 
+verf = 626853162002677761
 
 
 config = configparser.ConfigParser()
@@ -141,12 +142,12 @@ class User(commands.Cog):
         print(f"{ctx.message.author.name} looked up {avamember}'s avatar.")
     
     @bot.command(brief="Verifies the user for the NSFW channel.", hidden=True)
-    async def verify(ctx):
-        verify = bot.get_channel(verf)
+    async def verify(self, ctx):
+        verify = self.bot.get_channel(verf)
         mes = ctx.message
         if ctx.message.channel == verify:
             member = ctx.message.author
-            role = discord.utils.get(member.guild.roles, id=824761214445682730)
+            role = discord.utils.get(member.guild.roles, id=728983454586503208)
             await member.add_roles(role)
             await mes.delete()
             await ctx.send("Verified", delete_after=5)
