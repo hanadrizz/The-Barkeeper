@@ -7,6 +7,8 @@ import os
 from pretty_help import PrettyHelp
 from tinydb import TinyDB, Query
 from TextToOwO.owo import text_to_owo
+from mediawiki import MediaWiki
+import textwrap
 
 Intents = discord.Intents.default()
 Intents.members = True
@@ -26,6 +28,26 @@ class Fun(commands.Cog):
     """the stupidest commands can be found here"""
     def __init__(self, bot):
         self.bot = bot
+
+    @bot.command(brief="Looks up a summary of a wikipedia page", description="Looks up a summary of a wikipedia page")
+    async def wikowo(self, ctx, *, page):
+        print(f"{ctx.message.author.name} requested {page}")
+        wikipage = MediaWiki()
+        try:
+            site = wikipage.page(page, auto_suggest=False)
+            summary = wikipage.summary(page, auto_suggest=False)
+            owo = text_to_owo(summary)
+            summary_list = textwrap.wrap(owo, 2000, break_long_words=False)
+            for i in summary_list:
+                await ctx.channel.send(i)
+            await ctx.channel.send(f"<{site.url}>")
+        except Exception as inst:
+            site = wikipage.page(page)
+            summary = wikipage.summary(page)
+            summary_list = textwrap.wrap(summary, 2000, break_long_words=False)
+            for i in summary_list:
+                await ctx.channel.send(i)
+            await ctx.channel.send(f"<{site.url}>")
     
     @bot.command(brief="OwO, whats this? uwaaa >.<")
     async def owo(self, ctx, *, text):
