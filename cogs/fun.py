@@ -29,7 +29,7 @@ class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @bot.command(brief="Looks up a summary of a wikipedia page", description="Looks up a summary of a wikipedia page")
+    @bot.command(brief="Wooks up a summawy of a wikipedia page", description="Wooks up a summawy of a wikipedia page")
     async def wikowo(self, ctx, *, page):
         print(f"{ctx.message.author.name} requested {page}")
         wikipage = MediaWiki()
@@ -44,7 +44,8 @@ class Fun(commands.Cog):
         except Exception as inst:
             site = wikipage.page(page)
             summary = wikipage.summary(page)
-            summary_list = textwrap.wrap(summary, 2000, break_long_words=False)
+            owo = text_to_owo(summary)
+            summary_list = textwrap.wrap(owo, 2000, break_long_words=False)
             for i in summary_list:
                 await ctx.channel.send(i)
             await ctx.channel.send(f"<{site.url}>")
