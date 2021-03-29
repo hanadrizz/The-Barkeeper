@@ -11,8 +11,7 @@ from mediawiki import MediaWiki
 import textwrap
 import time
 
-verf = 626853162002677761
-
+verf = 824759015623884850
 
 config = configparser.ConfigParser()
 config.read('db.ini')
@@ -147,12 +146,12 @@ class User(commands.Cog):
         mes = ctx.message
         if ctx.message.channel == verify:
             member = ctx.message.author
-            role = discord.utils.get(member.guild.roles, id=728983454586503208)
+            role = discord.utils.get(member.guild.roles, id=824761214445682730)
             await member.add_roles(role)
             await mes.delete()
             await ctx.send("Verified", delete_after=5)
         else:
-            pass
+            await ctx.send("Hey, you need to check <#824759015623884850> to get in! It's important to read the rules, you know?", delete_after=15)
 
 def setup(bot):
     bot.add_cog(User(bot))
