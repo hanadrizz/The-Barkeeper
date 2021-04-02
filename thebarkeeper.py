@@ -57,7 +57,7 @@ pinboard = 821796457711534120
 boorulogs = 822132304050389083
 verf = 824759015623884850
 
-modrole = [752158397255647252, 728983187283509280]
+modrole = 752158397255647252
 ownerrole = 821756270826618910
 
 # EMOJI
@@ -77,7 +77,7 @@ description = "Commands for The Barkeeper"
 bot = commands.Bot(command_prefix="^", intents=Intents, description=description, help_command=PrettyHelp())
 
 @bot.command(brief="Reloads the bot", description="Reloads the bot", hidden=True)
-@commands.has_any_role(*modrole)
+@commands.has_role(modrole)
 async def reload(ctx):
     await ctx.send("Reloading...")
     bot.unload_extension("cogs.usercommands")

@@ -72,9 +72,9 @@ class Fun(commands.Cog):
     @bot.command(brief="Why don't you try me out?", description="we love some puns dont we")
     async def complementarybread(self, ctx):
         user = ctx.message.author
-        image = imagefolder + "complementarybread.png"
-        await user.send("Hey!", file=discord.File(image))
+        await user.send("Hey!")
         await ctx.send("Psst... come with me down this alley!")
+        await user.send("https://cdn.discordapp.com/attachments/821123717223415809/827637301953429514/complementarybread.png")
         print(f"Welcome to the bread bank, {user}")
         
     @bot.command(brief="thats a bit SUSSY", description="amogus")
