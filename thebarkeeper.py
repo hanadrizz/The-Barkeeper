@@ -15,6 +15,7 @@ from tinydb import TinyDB, Query
 from tinydb.operations import set
 import typing
 from pretty_help import PrettyHelp
+import traceback
 
 
 database = TinyDB("database.json", sort_keys=True, indent=4, separators=(',', ': '))
@@ -44,7 +45,7 @@ print(f'Reddit username: {username}')
 
 reddit = apraw.Reddit(client_id = clientid, client_secret = clientsecret, user_agent=useragent, username = username, password=password)
 
-bannedsubs = ["urinalpics", "urinalshitters", "urinalpoop", "poo", "kropotkistan", "femboy", "trans", "feemagers"]
+bannedsubs = config["filter"]["bannedsubs"].split()
 wordfilter = config["filter"]["filter"].split()
 
 # USERS AND CHANNELS
@@ -77,7 +78,7 @@ description = "Commands for The Barkeeper"
 bot = commands.Bot(command_prefix="^", intents=Intents, description=description, help_command=PrettyHelp())
 
 @bot.command(brief="Reloads the bot", description="Reloads the bot", hidden=True)
-@commands.has_role(modrole)
+@commands.is_owner()
 async def reload(ctx):
     await ctx.send("Reloading...")
     bot.unload_extension("cogs.usercommands")

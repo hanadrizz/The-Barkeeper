@@ -14,6 +14,8 @@ Intents.messages = True
 Intents.reactions = True
 Intents.dm_messages = True
 
+slotsrow = [":lock:", ":heart:", ":purple_heart:", ":dolphin:", ":pig:", ":transgender_flag:", ":diamonds:", ":hearts:", ":flushed:", ":face_with_symbols_over_mouth:", ":blue_circle:"]
+
 token = os.getenv('DISCORD_TOKEN')
 description = "Commands for The Barkeeper"
 bot = commands.Bot(command_prefix="^", intents=Intents, description=description, help_command=PrettyHelp())
@@ -167,6 +169,55 @@ class Economy(commands.Cog):
             money = leaderboard[k]["money"]
             embed.add_field(name=user.display_name, value=f"{money} :coin:", inline=False)
         await ctx.send(embed=embed)
+    @commands.cooldown(rate=1, per=10, type=commands.BucketType.user)
+    @bot.command(brief="The house always wins, you know.", description="Slot machine.")
+    async def slots(self, ctx, amount: int):
+        userid = ctx.message.author.id
+        datasearch = database.search(data.userid == userid)
+        record = datasearch[0]
+        money = record["money"]
+        if amount > money:
+            await ctx.send("You can't gamble, you don't have enough money!")
+        else:
+            if amount <= 0:
+                await ctx.send("You need to actually bet, you know?")
+            else:
+                subtractMoney(self, userid, amount)
+                rand = random.randint(0,100)
+                y = random.sample(range(11), 9)
+                ran = len(y)
+                gamble = await ctx.send(content=f"**[S L O T S]**\n[----------------]\n| {slotsrow[y[0]]} | {slotsrow[y[1]]} | {slotsrow[y[2]]} |\n| {slotsrow[y[3]]} | {slotsrow[y[4]]} | {slotsrow[y[5]]} |\n| {slotsrow[y[6]]} | {slotsrow[y[7]]} | {slotsrow[y[8]]} |\n[----------------]")
+                if rand > 80:
+                    for x in range(5):
+                        await asyncio.sleep(0.2)
+                        count = 0
+                        for a in range(ran):
+                            y[count] = y[count] + 1
+                            if y[count] >= 10:
+                                y[count] = 0
+                            count += 1
+                        await gamble.edit(content=f"**[S L O T S]**\n[----------------]\n| {slotsrow[y[0]]} | {slotsrow[y[1]]} | {slotsrow[y[2]]} |\n| {slotsrow[y[3]]} | {slotsrow[y[4]]} | {slotsrow[y[5]]} |\n| {slotsrow[y[6]]} | {slotsrow[y[7]]} | {slotsrow[y[8]]} |\n[----------------]")
+                    await asyncio.sleep(0.2)
+                    await gamble.edit(content=f"**[S L O T S]**\n[----------------]\n| {slotsrow[y[1]]} | {slotsrow[y[1]]} | {slotsrow[y[2]]} |\n| {slotsrow[8]} | {slotsrow[y[4]]} | {slotsrow[y[5]]} |\n| {slotsrow[y[7]]} | {slotsrow[y[7]]} | {slotsrow[y[8]]} |\n[----------------]")
+                    await asyncio.sleep(0.5)
+                    await gamble.edit(content=f"**[S L O T S]**\n[----------------]\n| {slotsrow[y[1]]} | {slotsrow[y[2]]} | {slotsrow[y[2]]} |\n| {slotsrow[8]} | {slotsrow[8]} | {slotsrow[y[5]]} |\n| {slotsrow[y[7]]} | {slotsrow[y[8]]} | {slotsrow[y[8]]} |\n[----------------]")
+                    await asyncio.sleep(0.5)
+                    await gamble.edit(content=f"**[S L O T S]**\n[----------------]\n| {slotsrow[y[1]]} | {slotsrow[y[2]]} | {slotsrow[y[3]]} |\n| {slotsrow[8]} | {slotsrow[8]} | {slotsrow[8]} |\n| {slotsrow[y[7]]} | {slotsrow[y[8]]} | {slotsrow[y[0]]} |\n[----------------]")
+                    pot = amount * 3 
+                    await ctx.send(f"{ctx.message.author} has won {pot} coins!!! Hurrah!")
+                    addMoney(self, userid, pot)
+                    
+                elif rand <= 80:
+                    for x in range(5):
+                        count = 0
+                        for a in range(ran):
+                            y[count] = y[count] + 1
+                            if y[count] == 11:
+                                y[count] = 0
+                            count += 1
+
+                        await gamble.edit(content=f"**[S L O T S]**\n[----------------]\n| {slotsrow[y[0]]} | {slotsrow[y[1]]} | {slotsrow[y[2]]} |\n| {slotsrow[y[3]]} | {slotsrow[y[4]]} | {slotsrow[y[5]]} |\n| {slotsrow[y[6]]} | {slotsrow[y[7]]} | {slotsrow[y[8]]} |\n[----------------]")
+                    await ctx.send(f"{ctx.message.author} lost {amount} :coin:")
 
 
 
