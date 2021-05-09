@@ -1,7 +1,5 @@
 import discord
 import discord.ext.commands.errors
-import dotenv
-import asyncio
 from discord.ext import commands
 import os
 from pretty_help import PrettyHelp
@@ -18,7 +16,7 @@ Intents.dm_messages = True
 
 token = os.getenv('DISCORD_TOKEN')
 description = "Commands for The Barkeeper"
-bot = commands.Bot(command_prefix="^", intents=Intents, description=description, help_command=PrettyHelp())
+bot = commands.Bot(command_prefix="?", intents=Intents, description=description, help_command=PrettyHelp())
 
 database = TinyDB("database.json", sort_keys=True, indent=4, separators=(',', ': '))
 data = Query()
