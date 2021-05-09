@@ -1,7 +1,5 @@
 import discord
 import discord.ext.commands.errors
-import dotenv
-import asyncio
 from discord.ext import commands
 import apraw
 import configparser
@@ -10,6 +8,7 @@ from pretty_help import PrettyHelp
 from mediawiki import MediaWiki
 import textwrap
 import time
+import requests
 
 verf = 824759015623884850
 
@@ -33,7 +32,7 @@ token = os.getenv('DISCORD_TOKEN')
 reddit = apraw.Reddit(client_id = clientid, client_secret = clientsecret, user_agent=useragent, username = username, password=password)
 bannedsubs = ["urinalpics", "urinalshitters", "urinalpoop", "poo", "kropotkistan", "femboy", "trans", "feemagers"]
 description = "Commands for The Barkeeper"
-bot = commands.Bot(command_prefix="^", intents=Intents, description=description, help_command=PrettyHelp())
+bot = commands.Bot(command_prefix="?", intents=Intents, description=description, help_command=PrettyHelp())
 processed = []
 
 class User(commands.Cog):
@@ -64,6 +63,26 @@ class User(commands.Cog):
         The full license document may be read at <https://choosealicense.com/licenses/gpl-3.0/>
         The repository may be found at  <https://github.com/hanadrizz/The-Barkeeper>
         """)
+
+    @bot.command(brief="Minecraft server status", description="Minecraft server status")
+    async def minecraft(self, ctx):
+        response = requests.get("https://api.mcsrvstat.us/2/135.125.233.124")
+        embed=discord.Embed(title="The Bar's Minecraft Server", color=0x2fab0f)
+        response = response.json()
+        if response["online"] == True:
+            embed.add_field(name="Online?", value="True", inline=False)
+            embed.add_field(name="Player count", value=f"{response['players']['online']}/{response['players']['max']}", inline=False)
+            try:
+                playerlist = ""
+                for player in response["players"]["list"]:
+                    playerlist += f"{player}\n"
+                embed.add_field(name="Player list", value=playerlist, inline=False)
+            except:
+                pass
+            embed.set_footer(text=f"Server IP: {response['ip']}")
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send("Server offline.")  
 
     @bot.command(brief="Sends back the latency for the bot", description="Sends back how long it takes for the bot to respond. Good for checking if the bot is online.")
     async def ping(self, ctx):
