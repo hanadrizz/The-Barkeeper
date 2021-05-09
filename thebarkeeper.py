@@ -1,21 +1,13 @@
-import apraw
 import os
+import apraw
 import discord
 import discord.ext.commands.errors
-from discord.message import Attachment
-import dotenv
-import asyncio
 from discord.ext import commands
 from mediawiki import MediaWiki
-import textwrap
-import time
-import datetime
 import configparser
 from tinydb import TinyDB, Query
 from tinydb.operations import set
-import typing
 from pretty_help import PrettyHelp
-import traceback
 
 
 database = TinyDB("database.json", sort_keys=True, indent=4, separators=(',', ': '))
@@ -75,7 +67,7 @@ Intents.dm_messages = True
 
 output = ""
 description = "Commands for The Barkeeper"
-bot = commands.Bot(command_prefix="^", intents=Intents, description=description, help_command=PrettyHelp())
+bot = commands.Bot(command_prefix="?", intents=Intents, description=description, help_command=PrettyHelp())
 
 @bot.command(brief="Reloads the bot", description="Reloads the bot", hidden=True)
 @commands.is_owner()
