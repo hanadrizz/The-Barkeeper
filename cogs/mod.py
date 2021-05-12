@@ -37,37 +37,68 @@ class Moderator(commands.Cog):
         print(f"User {ctx.message.author} sent {arg}")
         await cha.send(arg)
 
+    class Moderation(commands.Cog):
+    """Commands for moderation"""
+
+    def __init__(self, bot):
+        self.bot = bot
+
     @bot.command(brief="Bans the user", description="Bans the user")
-    @commands.has_role(modrole)
+    @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, user: discord.Member, *reason):
-        if user == None or user == ctx.message.author:
-            await ctx.send("You can't ban yourself.")
-        else:
-            if reason == None:
+        try:
+            if user == None or user == ctx.message.author:
+                await ctx.send("You can't ban yourself.")
+            elif reason == None:
                 await ctx.send("You need a reason.")
             else:
-                role = discord.utils.get(ctx.guild.roles, name="Admins")
-                if role in user.roles:
-                    print("b")
-                    await ctx.send("Hey, you can't do that!")
-                if role not in user.roles:
-                    print("a")
-                    reason = " ".join(reason[:])
-                    banmessage = f"You have been banned from {ctx.guild.name} for \n{reason}"
-                    await user.send(banmessage)
-                    await ctx.guild.ban(user, reason=reason)
-                    await ctx.channel.send(f"Banned {user}")
-                    print(f"{user} banned")
+                reason = " ".join(reason[:])
+                banmessage = f"You have been banned from {ctx.guild.name} for: \n\n{reason}"
+                await ctx.guild.ban(user, reason=reason)
+                await user.send(banmessage)
+                await ctx.channel.send(f"Banned {user}")
+                print(f"{user} banned")
+        except Exception as exc:
+            if exc.code == 50013:
+                await ctx.send("You don't have the permission to ban this user.")
+            else:
+                await ctx.send(f"An exception occured.\n\n{exc}")
+
 
     @bot.command(brief="Unbans the user", description="Unbans the user")
-    @commands.has_role(modrole)
+    @commands.has_permissions(ban_members=True)
     async def pardon(self, ctx, id: int):
-        user = await self.bot.fetch_user(id)
-        await ctx.guild.unban(user)
-        await ctx.send(f"User <@!{id}> has been pardoned.")
+        try:
+            user = await self.bot.fetch_user(id)
+            await ctx.guild.unban(user)
+            await ctx.send(f"User <@!{id}> has been pardoned.")
+        except Exception as exc:
+            if exc.code == 50013:
+                await ctx.send("You don't have the permission to unban this user.")
+            else:
+                await ctx.send("An error occured. Remember to input the *id* of the target.")
 
+    @bot.command(brief="Kicks the user", description="Kicks the user")
+    @commands.has_permissions(kick_members=True)
+    async def kick(self, ctx, user: discord.Member, *reason):
+        try:
+            if user == None or user == ctx.message.author:
+                await ctx.send("You can't kick yourself.")
+            elif reason == None:
+                await ctx.send("You need a reason.")
+            else:
+                reason = " ".join(reason[:])
+                banmessage = f"You have been kicked from {ctx.guild.name} for: \n\n{reason}"
+                await ctx.guild.ban(user, reason=reason)
+                await user.send(banmessage)
+                await ctx.channel.send(f"Banned {user}")
+                print(f"{user} banned")
+        except Exception as exc:
+            if exc.code == 50013:
+                await ctx.send("You don't have the permission to kick this user.")
+    
     @bot.command(brief="Reacts with emotes to be used as votes", description="Thumbs up: Yes | Thumbs down: No | Fist: Abstain")
-    @commands.has_role(modrole)
+    @commands.has_permissions(manage_messages=True)
     async def modvote(self, ctx):
         await ctx.message.add_reaction("👍")
         await ctx.message.add_reaction("👎")
