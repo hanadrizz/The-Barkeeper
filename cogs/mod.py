@@ -38,7 +38,7 @@ class Moderator(commands.Cog):
         await cha.send(arg)
 
     class Moderation(commands.Cog):
-    """Commands for moderation"""
+        """Commands for moderation"""
 
     def __init__(self, bot):
         self.bot = bot
