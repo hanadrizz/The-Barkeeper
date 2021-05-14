@@ -38,7 +38,7 @@ User commands | Output
   avatar [user] | Responds with the specified users' avatar        
   help | Displays a help message
   wiki [page] | Responds with the specified pages' summary and a link
-  license | Outputs the MIT license and a link to this repository
+  license | Outputs the license and a link to this repository
   hug [user] | Responds with "[author] is hugging [user]! :people_hugging:"
   redditsearch [subreddit] | Looks for images in the specified subreddit, shuffles and picks one image, and posts it in the channel
   ping | Responds with the latency of the bot vs receiving commands
