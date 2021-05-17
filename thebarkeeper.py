@@ -9,24 +9,26 @@ from tinydb import TinyDB, Query
 from tinydb.operations import set
 from pretty_help import PrettyHelp
 
+# DATABASE INITIALIZATION
 
 database = TinyDB("database.json", sort_keys=True, indent=4, separators=(',', ': '))
 data = Query()
 
-imagefolder = "images\\"
-
 config = configparser.ConfigParser()
 config.read('db.ini')
 
+#SETTING UP THE DISCORD AND REDDIT CLIENTS
 clientid = config['reddit']['client_id']
 clientsecret = config['reddit']['client_secret']
 useragent = config['reddit']['user_agent']
 username = config['reddit']['username']
 password = config['reddit']['password']
 
+guildid = config.getint("discord", "guildid")
 guild = config['discord']['guild']
 token = config['discord']['token']
 
+# MAKING SURE ITS SET UP PROPERLY
 print('Configuration:')
 
 print(f'ID: {clientid}')
@@ -34,28 +36,25 @@ print(f'Client Secret: {clientsecret}')
 print(f'Useragent: {useragent}')
 print(f'Reddit username: {username}')
 
-
+# REDDIT INITIALIZATION
 reddit = apraw.Reddit(client_id = clientid, client_secret = clientsecret, user_agent=useragent, username = username, password=password)
 
+# FILTERS
 bannedsubs = config["filter"]["bannedsubs"].split()
 wordfilter = config["filter"]["filter"].split()
 
-# USERS AND CHANNELS
 
-bottesting = 821087946941792258
-general = 752157598232477789
-memechannel = 752158323574308934
-logs = 821333966173765643
-pinboard = 821796457711534120
-boorulogs = 822132304050389083
-verf = 824759015623884850
+# SETTING UP ALL THE VALUES AND VARIABLES
+# SEE THE COMPILE GUIDE FOR MORE
 
-modrole = 752158397255647252
-ownerrole = 821756270826618910
-
-# EMOJI
-
-moggers = 821358739336593429
+general = config.getint("setup", "general")
+logs = config.getint("setup", "logs")
+pinboard = config.getint("setup", "pinboard")
+verf = config.getint("setup", "verf")
+moggers = config.getint("setup", "moggers")
+memberrole = config.getint("setup", "memberrole")
+reactionnumber = config.getint("setup", "reactionlimit")
+rules = config.getint("setup", "rules")
 
 # INTENTS
 
@@ -66,8 +65,11 @@ Intents.reactions = True
 Intents.dm_messages = True
 
 output = ""
-description = "Commands for The Barkeeper"
+description = "Commands for the bot"
 bot = commands.Bot(command_prefix="?", intents=Intents, description=description, help_command=PrettyHelp())
+
+
+# RELOADING THE COGS SO YOU CAN EDIT WITHOUT HAVING TO SHUT OFF THE BOT
 
 @bot.command(brief="Reloads the bot", description="Reloads the bot", hidden=True)
 @commands.is_owner()
@@ -87,6 +89,7 @@ async def reload(ctx):
 
 # EVENTS
 
+#SLUR FILTER DETECITION
 @bot.event
 async def on_message(message):
     ctx = message.channel
@@ -101,30 +104,31 @@ async def on_message(message):
 
     await bot.process_commands(message)
     
-
+#WELCOME MESSAGE AND ADDING THE MEMBER ROLE + GIVING THEM A PROFILE IN THE DATABASE
 @bot.event
 async def on_member_join(member):
     channel = bot.get_channel(general)
-    await channel.send(f"Welcome {member.mention} to The Bar! You can get roles by pinging Roleypoly! Be sure to read the rules over at <#755155329502675066> aswell! Have a nice day!")
-    role = discord.utils.get(member.guild.roles, id=752163420962422795)
+    await channel.send(f"Welcome {member.mention} to the server! You can get roles by pinging Roleypoly! Be sure to read the rules over at <#{rules}> aswell! Have a nice day!")
+    role = discord.utils.get(member.guild.roles, id=memberrole)
     await member.add_roles(role)
     print(f"{member} joined.")
     check = database.search(data.userid == member.id)
     if check == []:
         database.insert({"userid": member.id, "money": 0, "pickaxetier": 0})
 
+#PINBOARD SET UP
 @bot.event
 async def on_reaction_add(reaction, user):
     if hasattr(reaction.emoji, "id"):
         if reaction.emoji.id == moggers:
-            if reaction.count >= 3:
+            if reaction.count >= reactionnumber: # HOW MANY IS NEEDED TO PIN
                 if reaction.message.pinned == False:
                     try:
                         await reaction.message.pin()
                     except:
                         await reaction.message.channel.send("Maximum number of pins reached (50)")
 
-                    ctx = reaction.message.channel
+                    ctx = reaction.message.channel # PINBOARD MESSAGE 
                     message = reaction.message
                     user = message.author
                     avatar = user.avatar_url
@@ -143,17 +147,18 @@ async def on_reaction_add(reaction, user):
                     board = bot.get_channel(pinboard)
                     await board.send(f"Message pinned from <#{ctx.id}>", embed=pin)
 
+# ADDING ALL EMPTY USERS TO THE DATABASE WHEN IT STARTS
 @bot.event
 async def on_ready():
     print(f'Bot has connected to Discord!')
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="for rulebreakers, beware!"))
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="for rulebreakers, beware!")) # STATUS MESSAGE
     if os.stat("database.json").st_size == 0:
-        server = bot.get_guild(752157598232477786)
+        server = bot.get_guild(guildid)
         servermembers = server.members
         for member in servermembers:
             database.insert({"userid": member.id, "money": 0, "pickaxetier": 0})
     
-
+# LOGS
 @bot.event
 async def on_message_delete(message):
     if not message.author.bot:
