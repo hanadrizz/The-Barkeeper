@@ -10,6 +10,92 @@ This bot is not adjusted for simple download and use.
 todo:
 comment it all, im bad at that :sunglasses:
 
+# COMPILE GUIDE
+
+This bot isn't really meant for easy distribution, but its not too hard to make it work for your server.
+You just need some python knowledge, access to the discord API and own the server
+You have to have Python, Pip and Python virtual environments instaled before this.
+
+First, download all the files and put them in a folder.
+Then create a file called db.ini
+In this file, paste this in:
+
+    [reddit]
+    
+    client_id=
+    client_secret=
+    user_agent=
+    username=
+    password=
+    
+    [discord]
+    guildid =
+    guild = 
+    token =
+    
+    [filter]
+    filter = 
+    bannedsubs =
+    
+    [setup]
+    
+    general =
+    logs =
+    pinboard =
+    verf =
+    verfrole = 
+    memberrole =
+    modrole =
+    ownerrole =
+    moggers =
+    reactionlimit =
+    minecraftip =
+    rules =
+
+On the reddit part of this file, get a Reddit API application and paste in, as well as logging in on an account
+Its safe to use your own, but it doesn't matter. It only looks for images and stuff, nothing else
+In ths discord part, paste the ID for your server (use developer mode), in guildid, the name of your server in guild, and most importantly, your bot's Bot Token you have gotten from the Discord Developer API
+
+On filter, you have to just seperate the words with spaces, but in filter, add all the words you want filtered,
+and on banned subs, all the subs you dont want users to check
+
+Setup is a lot more trickier, all of these values is an ID, so be sure to use devmode
+general is for your general channel, the bot will announce new entrants here
+logs is for the logging channel, here the bot will put all deleted messages
+pinboard is the channel the bot will post the messages it pins in here
+verf is the channel you want users to post the ?verify command in
+verfrole is the role you want to assign users when they are verified
+memberrole is the members role, ID, not name
+ownerrole and modrole is the owners and moderators roles, get the IDs, not name
+moggers is the *emote* you want users to use when they are trying to get a message pinned
+reactionlimit is a number, how many reactions you want users to reach before a message is pinned
+minecraftip is the numerical ip to a minecraft server
+rules is for the rules channel, this is to point users to that channel when they're welcomed.
+
+And then when you have filled all of these in, just open a console, and then type
+
+    python3 -m venv venv
+When that has finished, it depends on which operating system you use
+If you're on Linux, do 
+
+    source ./venv/bin/activate
+If you're on Windows, do
+
+    venv/Scripts/activate
+
+Then you have to do
+
+    pip install -r requirements.txt
+
+Now, you're ready to run the bot, do 
+python3 thebarkeeper.py
+
+If you've done everything right, it should run just fine.
+If you have any questions, tips, help, or any of the sort, just open a ticket and I'll come to your assistance.
+
+
+
+
 # Prefix
 Prefix is ?
 
@@ -42,6 +128,7 @@ User commands | Output
   hug [user] | Responds with "[author] is hugging [user]! :people_hugging:"
   redditsearch [subreddit] | Looks for images in the specified subreddit, shuffles and picks one image, and posts it in the channel
   ping | Responds with the latency of the bot vs receiving commands
+  minecraft | Shows you if the server is online and how many players are on
   
   Fun commands | Output
 ------------ | -------------
