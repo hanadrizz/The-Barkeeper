@@ -180,7 +180,7 @@ class User(commands.Cog):
             await mes.delete()
             await ctx.send("Verified", delete_after=5)
         else:
-            await ctx.send("Hey, you need to check <#824759015623884850> to get in! It's important to read the rules, you know?", delete_after=15)
+            await ctx.send(f"Hey, you need to check <#{verf}> to get in! It's important to read the rules, you know?", delete_after=15)
 
 def setup(bot):
     bot.add_cog(User(bot))
