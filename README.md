@@ -49,7 +49,7 @@ In this file, paste this in:
     ownerrole =
     moggers =
     reactionlimit =
-    minecraftip =
+    mcip =
     rules =
 
 On the reddit part of this file, get a Reddit API application and paste in, as well as logging in on an account
