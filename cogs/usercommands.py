@@ -16,7 +16,7 @@ config.read('db.ini')
 # CONFIGURATION
 verf = config.getint("setup", "verf")
 verfrole = config.getint("setup", "verfrole")
-minecraftip = config.getint("setup", "mcip")
+minecraftip = config["setup"]["mcip"]
 
 clientid = config['reddit']['client_id']
 clientsecret = config['reddit']['client_secret']
