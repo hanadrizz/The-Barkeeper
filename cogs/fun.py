@@ -66,7 +66,7 @@ class Fun(commands.Cog):
         elif choice == "scissor":
             await ctx.send("You lose!")
         else:
-            await ctx.send("Correct command usage is ``?rps [choice]")
+            await ctx.send("Correct command usage is ``?rps [choice]``")
 
     # IT SENDS A PICTURE OF BREAD WITH THE CAPTION
     # "UR CUTE" TO THE USER IN THEIR DMS
