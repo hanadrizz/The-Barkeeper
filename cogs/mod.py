@@ -13,33 +13,40 @@ Intents.reactions = True
 Intents.dm_messages = True
 
 config = configparser.ConfigParser()
-config.read('db.ini')
-description = "Commands for The Barkeeper"
-bot = commands.Bot(command_prefix="?", intents=Intents, description=description, help_command=PrettyHelp())
+config.read("db.ini")
 
 modrole = config.getint("setup", "modrole")
 ownerrole = config.getint("setup", "ownerrole")
 processed = []
 
+
 class Moderator(commands.Cog):
     """Commands for moderating purposes"""
+
     def __init__(self, bot):
         self.bot = bot
-    
+
     # ITS JUST SOME INTERESTING STATISTICS
     # OF THE AVERAGE TIME IT TAKES FOR THE BOT
     # TO PROCESS AND SEND IMAGES THROUGH THE
     # ?REDDITSEARCH COMMAND
-    @bot.command(brief="Average time it took to look up posts", description="Displays the average time it took the bot to look up and respond with the images it was tasked to search for")
+    @commands.command(
+        brief="Average time it took to look up posts",
+        description="Displays the average time it took the bot to look up and respond with the images it was tasked to search for",
+    )
     @commands.has_role(modrole)
     async def avgredditlookup(self, ctx):
         results = sum(processed) / len(processed)
-        await ctx.send(f"The average time to look up reddit posts is **{results} seconds**")
-        
+        await ctx.send(
+            f"The average time to look up reddit posts is **{results} seconds**"
+        )
+
     # THIS ONE IS FOR SENDING A MESSAGE AS THE BOT
     # CHANNEL IS THE ID FOR THE CHANNEL TO SEND IN
     # NO " " NEEDED
-    @bot.command(brief='Sends a message as the bot', description='Sends a message as the bot')
+    @commands.command(
+        brief="Sends a message as the bot", description="Sends a message as the bot"
+    )
     @commands.has_role(ownerrole)
     async def sendmessage(self, ctx, channel: int, *, arg):
         cha = self.bot.get_channel(channel)
@@ -49,7 +56,7 @@ class Moderator(commands.Cog):
     # ANY MOD WITH THE BAN MEMBERS PERMISSION
     # USES THIS TO BAN THE USER
     # THE USER IS DM'D THE BAN REASON
-    @bot.command(brief="Bans the user", description="Bans the user")
+    @commands.command(brief="Bans the user", description="Bans the user")
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, user: discord.Member, *reason):
         try:
@@ -59,7 +66,9 @@ class Moderator(commands.Cog):
                 await ctx.send("You need a reason.")
             else:
                 reason = " ".join(reason[:])
-                banmessage = f"You have been banned from {ctx.guild.name} for: \n\n{reason}"
+                banmessage = (
+                    f"You have been banned from {ctx.guild.name} for: \n\n{reason}"
+                )
                 await ctx.guild.ban(user, reason=reason)
                 await user.send(banmessage)
                 await ctx.channel.send(f"Banned {user}")
@@ -72,7 +81,7 @@ class Moderator(commands.Cog):
 
     # REVERSES A BAN ON A USER
     # REQUIRES AN ID
-    @bot.command(brief="Unbans the user", description="Unbans the user")
+    @commands.command(brief="Unbans the user", description="Unbans the user")
     @commands.has_permissions(ban_members=True)
     async def pardon(self, ctx, id: int):
         try:
@@ -83,12 +92,14 @@ class Moderator(commands.Cog):
             if exc.code == 50013:
                 await ctx.send("You don't have the permission to unban this user.")
             else:
-                await ctx.send("An error occured. Remember to input the *id* of the target.")
+                await ctx.send(
+                    "An error occured. Remember to input the *id* of the target."
+                )
 
     # KICKS A USER INSTEAD OF BANNING
-    # EVERYTHING ELSE IS THE SAME 
+    # EVERYTHING ELSE IS THE SAME
     # WITH THE BAN COMMAND
-    @bot.command(brief="Kicks the user", description="Kicks the user")
+    @commands.command(brief="Kicks the user", description="Kicks the user")
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, user: discord.Member, *reason):
         try:
@@ -98,7 +109,9 @@ class Moderator(commands.Cog):
                 await ctx.send("You need a reason.")
             else:
                 reason = " ".join(reason[:])
-                banmessage = f"You have been kicked from {ctx.guild.name} for: \n\n{reason}"
+                banmessage = (
+                    f"You have been kicked from {ctx.guild.name} for: \n\n{reason}"
+                )
                 await ctx.guild.ban(user, reason=reason)
                 await user.send(banmessage)
                 await ctx.channel.send(f"Banned {user}")
@@ -106,14 +119,18 @@ class Moderator(commands.Cog):
         except Exception as exc:
             if exc.code == 50013:
                 await ctx.send("You don't have the permission to kick this user.")
-    
+
     # USEFUL FOR MOD VOTE STUFF
-    @bot.command(brief="Reacts with emotes to be used as votes", description="Thumbs up: Yes | Thumbs down: No | Fist: Abstain")
+    @commands.command(
+        brief="Reacts with emotes to be used as votes",
+        description="Thumbs up: Yes | Thumbs down: No | Fist: Abstain",
+    )
     @commands.has_permissions(manage_messages=True)
     async def modvote(self, ctx):
         await ctx.message.add_reaction("👍")
         await ctx.message.add_reaction("👎")
         await ctx.message.add_reaction("👊")
+
 
 def setup(bot):
     bot.add_cog(Moderator(bot))
